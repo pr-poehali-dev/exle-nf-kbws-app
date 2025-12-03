@@ -5,6 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import Icon from '@/components/ui/icon';
 
 type Screen = 'home' | 'tables' | 'search' | 'settings';
@@ -22,7 +28,7 @@ const Index = () => {
       supplier1: '285',
       supplier2: '80',
       supplier3: '225',
-      status: 'active',
+      status: 'production',
       highlighted: true
     },
     {
@@ -33,7 +39,7 @@ const Index = () => {
       supplier1: '285',
       supplier2: '80',
       supplier3: '',
-      status: 'active',
+      status: 'ready',
       highlighted: true
     },
     {
@@ -44,7 +50,7 @@ const Index = () => {
       supplier1: '285',
       supplier2: '80',
       supplier3: '225',
-      status: 'pending',
+      status: 'active',
       highlighted: false
     },
     {
@@ -55,7 +61,7 @@ const Index = () => {
       supplier1: '450',
       supplier2: '130',
       supplier3: '',
-      status: 'active',
+      status: 'production',
       highlighted: false
     },
     {
@@ -77,7 +83,7 @@ const Index = () => {
       supplier1: '1140',
       supplier2: '325',
       supplier3: '920',
-      status: 'active',
+      status: 'ready',
       highlighted: true
     },
     {
@@ -88,7 +94,7 @@ const Index = () => {
       supplier1: '685',
       supplier2: '200',
       supplier3: '',
-      status: 'pending',
+      status: 'active',
       highlighted: false
     },
     {
@@ -99,7 +105,7 @@ const Index = () => {
       supplier1: '1720',
       supplier2: '490',
       supplier3: '1400',
-      status: 'active',
+      status: 'production',
       highlighted: false
     },
   ]);
@@ -125,6 +131,25 @@ const Index = () => {
     const newOrders = [...orders];
     [newOrders[index], newOrders[index + 1]] = [newOrders[index + 1], newOrders[index]];
     setOrders(newOrders);
+  };
+
+  const changeOrderStatus = (index: number, newStatus: 'active' | 'production' | 'ready') => {
+    const newOrders = [...orders];
+    newOrders[index].status = newStatus;
+    setOrders(newOrders);
+  };
+
+  const getStatusConfig = (status: string) => {
+    switch (status) {
+      case 'active':
+        return { label: 'Активен', color: 'bg-blue-100 text-blue-700 hover:bg-blue-100', dotColor: 'bg-blue-500' };
+      case 'production':
+        return { label: 'В производстве', color: 'bg-amber-100 text-amber-700 hover:bg-amber-100', dotColor: 'bg-amber-500' };
+      case 'ready':
+        return { label: 'Готов', color: 'bg-green-100 text-green-700 hover:bg-green-100', dotColor: 'bg-green-500' };
+      default:
+        return { label: 'Активен', color: 'bg-blue-100 text-blue-700 hover:bg-blue-100', dotColor: 'bg-blue-500' };
+    }
   };
 
   const HomeScreen = () => (
@@ -216,9 +241,9 @@ const Index = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <Badge variant="outline" className="text-xs font-mono">{order.id}</Badge>
-                      {order.status === 'active' && (
-                        <Badge className="text-xs bg-green-100 text-green-700 hover:bg-green-100">Активен</Badge>
-                      )}
+                      <Badge className={`text-xs ${getStatusConfig(order.status).color}`}>
+                        {getStatusConfig(order.status).label}
+                      </Badge>
                     </div>
                     <p className="text-sm text-foreground line-clamp-2">{order.name}</p>
                     <p className="text-xs text-muted-foreground mt-1">{order.specs}</p>
@@ -281,9 +306,27 @@ const Index = () => {
                       <td className="p-2 border-r">
                         <div className="flex items-center gap-2">
                           <Badge variant="outline" className="font-mono text-xs">{order.id}</Badge>
-                          {order.status === 'active' && (
-                            <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                          )}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                              <Badge className={`text-xs cursor-pointer ${getStatusConfig(order.status).color}`}>
+                                {getStatusConfig(order.status).label}
+                              </Badge>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="start" onClick={(e) => e.stopPropagation()}>
+                              <DropdownMenuItem onClick={() => changeOrderStatus(index, 'active')}>
+                                <div className="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
+                                Активен
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => changeOrderStatus(index, 'production')}>
+                                <div className="w-2 h-2 rounded-full bg-amber-500 mr-2"></div>
+                                В производстве
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => changeOrderStatus(index, 'ready')}>
+                                <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                                Готов
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </td>
                       <td className="p-2 border-r text-xs">{order.name}</td>
@@ -388,9 +431,9 @@ const Index = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <Badge variant="outline" className="text-xs font-mono">{order.id}</Badge>
-                        {order.status === 'active' && (
-                          <Badge className="text-xs bg-green-100 text-green-700 hover:bg-green-100">Активен</Badge>
-                        )}
+                        <Badge className={`text-xs ${getStatusConfig(order.status).color}`}>
+                          {getStatusConfig(order.status).label}
+                        </Badge>
                       </div>
                       <p className="text-sm text-foreground">{order.name}</p>
                       <p className="text-xs text-muted-foreground mt-1">{order.specs}</p>

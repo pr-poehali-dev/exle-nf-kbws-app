@@ -13,8 +13,7 @@ const Index = () => {
   const [activeScreen, setActiveScreen] = useState<Screen>('home');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
-
-  const cableOrders = [
+  const [orders, setOrders] = useState([
     {
       id: '1258-3',
       name: 'E2E-1 U/UTP cat 5e PVC 4x2x0,48 Cu Solid INDOOR RC Серый',
@@ -103,13 +102,29 @@ const Index = () => {
       status: 'active',
       highlighted: false
     },
-  ];
+  ]);
+
+  const cableOrders = orders;
 
   const stats = {
     totalOrders: cableOrders.length,
     activeOrders: cableOrders.filter(o => o.status === 'active').length,
     suppliers: 3,
     totalValue: '2.4M ₽'
+  };
+
+  const moveOrderUp = (index: number) => {
+    if (index === 0) return;
+    const newOrders = [...orders];
+    [newOrders[index - 1], newOrders[index]] = [newOrders[index], newOrders[index - 1]];
+    setOrders(newOrders);
+  };
+
+  const moveOrderDown = (index: number) => {
+    if (index === orders.length - 1) return;
+    const newOrders = [...orders];
+    [newOrders[index], newOrders[index + 1]] = [newOrders[index + 1], newOrders[index]];
+    setOrders(newOrders);
   };
 
   const HomeScreen = () => (
@@ -239,12 +254,14 @@ const Index = () => {
               <table className="w-full text-sm">
                 <thead className="bg-muted/50 sticky top-0">
                   <tr>
+                    <th className="p-2 text-center font-semibold border-r text-xs w-16">№</th>
                     <th className="p-2 text-left font-semibold border-r text-xs">№ Заказа</th>
                     <th className="p-2 text-left font-semibold border-r text-xs">Наименование</th>
                     <th className="p-2 text-center font-semibold border-r text-xs">Cu</th>
                     <th className="p-2 text-center font-semibold border-r text-xs">Пост. 1</th>
                     <th className="p-2 text-center font-semibold border-r text-xs">Пост. 2</th>
-                    <th className="p-2 text-center font-semibold text-xs">Пост. 3</th>
+                    <th className="p-2 text-center font-semibold border-r text-xs">Пост. 3</th>
+                    <th className="p-2 text-center font-semibold text-xs w-20">Действия</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -256,6 +273,11 @@ const Index = () => {
                       } ${selectedRow === index ? 'bg-primary/5' : ''}`}
                       onClick={() => setSelectedRow(index)}
                     >
+                      <td className="p-2 border-r text-center">
+                        <Badge variant="secondary" className="text-xs font-semibold">
+                          {index + 1}
+                        </Badge>
+                      </td>
                       <td className="p-2 border-r">
                         <div className="flex items-center gap-2">
                           <Badge variant="outline" className="font-mono text-xs">{order.id}</Badge>
@@ -268,7 +290,35 @@ const Index = () => {
                       <td className="p-2 border-r text-center text-xs font-medium">{order.cu || '—'}</td>
                       <td className="p-2 border-r text-center text-xs font-medium">{order.supplier1 || '—'}</td>
                       <td className="p-2 border-r text-center text-xs font-medium">{order.supplier2 || '—'}</td>
-                      <td className="p-2 text-center text-xs font-medium">{order.supplier3 || '—'}</td>
+                      <td className="p-2 border-r text-center text-xs font-medium">{order.supplier3 || '—'}</td>
+                      <td className="p-2">
+                        <div className="flex items-center justify-center gap-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 w-7 p-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              moveOrderUp(index);
+                            }}
+                            disabled={index === 0}
+                          >
+                            <Icon name="ChevronUp" size={16} />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 w-7 p-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              moveOrderDown(index);
+                            }}
+                            disabled={index === cableOrders.length - 1}
+                          >
+                            <Icon name="ChevronDown" size={16} />
+                          </Button>
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

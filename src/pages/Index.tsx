@@ -117,7 +117,7 @@ const Index = () => {
       <div className="max-w-2xl mx-auto space-y-4">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-foreground mb-1">Заказы кабеля</h1>
-          <p className="text-sm text-muted-foreground">Управление заказами и поставщиками</p>
+          <p className="text-sm text-muted-foreground">Управление заказами и поставками</p>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
